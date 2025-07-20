@@ -2,5 +2,15 @@
 title: "Voting and Postcards"
 author: Naveed Ahmad
 format: html
+execute: 
+  echo: false
 ---
 
+```{r}
+#| message: false
+library(tidyverse)
+library(primer.data)
+
+```
+## Summary
+Whether voting behavior of people may be influenced through planed watching them. In this study it has been checked by using data from the paper "Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment" by Gerber, Green, and Larimer (2008).
