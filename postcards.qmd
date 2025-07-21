@@ -19,7 +19,8 @@ library(ggplot2)
 ```
 
 ## Summary
-Whether voting behavior of people may be influenced through planed watching them. In this study it has been checked by using data from the paper "Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment" by Gerber, Green, and Larimer (2008). However, the data used in this study is from Michigan which may not hold good for broader population in U.S. I have used the logistic regression model for predicting voter turnout as function of postcard treatment with covariates of age and sex. Tratement neighbors have the highest effect on vouter outcome. Predicted probability shows that some time vote and rarely vote are the most influenced by social pressure toward voting and in case of always voted, neighbors have higher probability of predicting for voting turnout by around 50%.
+<div style="text-align: justify">Whether voting behavior of people may be influenced through planed watching them. In this study it has been checked by using data from the paper "Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment" by Gerber, Green, and Larimer (2008). However, the data used in this study is from Michigan which may not hold good for broader population in U.S. I have used the logistic regression model for predicting voter turnout as function of postcard treatment with covariates of age and sex. Tratement neighbors have the highest effect on vouter outcome. Predicted probability shows that some time vote and rarely vote are the most influenced by social pressure toward voting and in case of always voted, neighbors have higher probability of predicting for voting turnout by around 50%.
+</div>
 
 ## Statistical Model
 
@@ -97,6 +98,8 @@ model_tbl <- tidy(fit_vote, conf.int = TRUE)
 plot_data <- plot_predictions(fit_vote, type = "prob", condition = c("treatment", "voter_class"), draw = FALSE)
 ```
 
+## Predictions
+
 ```{r}
 plot_pcard <- plot_data |>
   mutate(treatment = factor(treatment, levels = unique(treatment)),
@@ -109,7 +112,6 @@ plot_pcard <- plot_data |>
                     labels = c("Group 0", "Group 1")) +
   labs(
     title = "Predicted Voting Probability by Treatment Group and Voter Class",
-    subtitle = "With 95% Confidence Intervals and Group Comparisons",
     x = "Treatment",
     y = "Predicted Probability",
     fill = "Group") +
@@ -120,3 +122,9 @@ plot_pcard <- plot_data |>
         legend.position = "top")
 print(plot_pcard)
 ```
+
+## Description
+<div style="text-align: justify">The plot shows the predicted probabilities of voting across different treatments and voter groups, with 95% confidence intervals. The data is categorized by two groups: Group 0 (blue bars) and Group 1 (orange bars). The x-axis represents various treatment types — Civic Duty, Hawthorne, No Postcard, Self, Neighbors — and these treatments are grouped by voter categories: Sometimes Vote, Rarely Vote, and Always Vote. The y-axis displays the predicted probability of voting ranging from 0 to 1.
+
+The chart reveals a clear pattern: Group 0 consistently shows higher predicted probabilities of voting across all voter categories and treatments compared to Group 1. Among “Rarely Vote” individuals, Group 0 has the highest predicted probabilities (around 0.8 or higher), whereas Group 1 shows the lowest probabilities (around 0.1 to 0.3). For “Sometimes Vote,” the probabilities for Group 0 are still high but slightly lower than for rare voters, while Group 1 stays relatively low. Among “Always Vote” individuals, both groups show more similar voting probabilities (around 0.5–0.6), with Group 1 catching up somewhat.</div>
+
