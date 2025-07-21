@@ -10,7 +10,90 @@ execute:
 #| message: false
 library(tidyverse)
 library(primer.data)
-
+library(tidymodels)
+library(broom)
+library(dplyr)
+library(knitr)
+library(marginaleffects)
+library(ggplot2)
 ```
 ## Summary
-Whether voting behavior of people may be influenced through planed watching them. In this study it has been checked by using data from the paper "Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment" by Gerber, Green, and Larimer (2008).
+Whether voting behavior of people may be influenced through planed watching them. In this study it has been checked by using data from the paper "Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment" by Gerber, Green, and Larimer (2008). However, the data used in this study is from Michigan which may not hold good for broader population in U.S. I have used the logistic regression model for predicting voter turnout as function of postcard treatment with covariates of age and sex. Tratement neighbors have the highest effect on vouter outcome.
+
+## Statistical Model
+
+$$P(Y = 1) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n)}}$$
+
+with $Y \sim \text{Bernoulli}(\rho)$ where $\rho$ is the probability above.
+
+
+```{r}
+x <- shaming |> 
+  mutate(civ_engage = primary_00 + primary_02 + primary_04 + 
+               general_00 + general_02 + general_04) |> 
+  select(primary_06, treatment, sex, age, civ_engage) |> 
+  mutate(voter_class = factor(
+    case_when(
+      civ_engage %in% c(5, 6) ~ "Always Vote",
+      civ_engage %in% c(3, 4) ~ "Sometimes Vote",
+      civ_engage %in% c(1, 2) ~ "Rarely Vote"),
+         levels = c("Rarely Vote", 
+                    "Sometimes Vote", 
+                    "Always Vote"))) |>
+  mutate(voted = as.factor(primary_06))
+
+```
+
+```{r}
+#| cache: true
+fit_vote <- logistic_reg(engine = "glm") |>
+  fit(voted ~ age + sex + treatment * voter_class, data = x)
+```
+
+## Fitted Logistic Regression Model (Compact Form)
+This is our data Generating Mechanism
+$$
+\hat{Y} = \frac{1}{1 + e^{-(
+\beta_0 + \sum_{j=1}^{p} \beta_j X_j
+)}}
+$$
+
+where each $\beta_j~[CI_{low},~CI_{high}]$ is:
+
+- $\beta_0 = -2.43~[-2.48,\ -2.39]$ (Intercept)  
+- $\beta_1 = 0.01~[0.01,\ 0.01]$ (age)  
+- $\beta_2 = 0.04~[0.02,\ 0.05]$ (sexMale)  
+- $\beta_3 = 0.09~[-0.00,\ 0.17]$ (treatmentCivicDuty)  
+- $\beta_4 = 0.07~[-0.02,\ 0.16]$ (treatmentHawthorne)  
+- $\beta_5 = 0.20~[0.12,\ 0.29]$ (treatmentSelf)  
+- $\beta_6 = 0.36~[0.28,\ 0.44]$ (treatmentNeighbors)  
+- $\beta_7 = 0.82~[0.78,\ 0.86]$ (voterClassSometimes)  
+- $\beta_8 = 1.61~[1.57,\ 1.65]$ (voterClassAlways)  
+- $\beta_9 = 0.03~[-0.06,\ 0.12]$ (CivicDuty × Sometimes)  
+- $\beta_{10} = 0.06~[-0.03,\ 0.15]$ (Hawthorne × Sometimes)  
+- $\beta_{11} = 0.05~[-0.04,\ 0.14]$ (Self × Sometimes)  
+- $\beta_{12} = 0.04~[-0.05,\ 0.13]$ (Neighbors × Sometimes)  
+- $\beta_{13} = -0.05~[-0.15,\ 0.05]$ (CivicDuty × Always)  
+- $\beta_{14} = 0.06~[-0.04,\ 0.16]$ (Hawthorne × Always)  
+- $\beta_{15} = -0.01~[-0.10,\ 0.09]$ (Self × Always)  
+- $\beta_{16} = 0.01~[-0.09,\ 0.10]$ (Neighbors × Always)
+
+## Logestic Regression Coefficients
+```{r}
+model_tbl <- tidy(fit_vote, conf.int = TRUE)
+ model_tbl %>%
+  select(term, estimate, conf.low, conf.high) %>%
+  mutate(across(c(estimate, conf.low, conf.high), ~ round(.x, 2))) %>%
+  rename(
+    Term = term,
+    Estimate = estimate,
+    `95% CI Lower` = conf.low,
+    `95% CI Upper` = conf.high
+  ) %>%
+  kable(caption = "Logistic Regression Coefficients with 95% Confidence Intervals")
+```
+
+```{r}
+plot_data <- plot_predictions(fit_vote, type = "prob", condition = c("treatment", "voter_class"), draw = FALSE)
+```
+

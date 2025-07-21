@@ -36,6 +36,35 @@ ul.task-list li input[type="checkbox"] {
 <link href="postcards_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="postcards_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -72,7 +101,184 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="summary" class="level2">
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
-<p>Whether voting behavior of people may be influenced through planed watching them. In this study it has been checked by using data from the paper “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” by Gerber, Green, and Larimer (2008).</p>
+<p>Whether voting behavior of people may be influenced through planed watching them. In this study it has been checked by using data from the paper “Social Pressure and Voter Turnout: Evidence from a Large-Scale Field Experiment” by Gerber, Green, and Larimer (2008). However, the data used in this study is from Michigan which may not hold good for broader population in U.S. I have used the logistic regression model for predicting voter turnout as function of postcard treatment with covariates of age and sex. Tratement neighbors have the highest effect on vouter outcome.</p>
+</section>
+<section id="statistical-model" class="level2">
+<h2 class="anchored" data-anchor-id="statistical-model">Statistical Model</h2>
+<p><span class="math display">\[P(Y = 1) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 X_1 + \beta_2 X_2 + \cdots + \beta_n X_n)}}\]</span></p>
+<p>with <span class="math inline">\(Y \sim \text{Bernoulli}(\rho)\)</span> where <span class="math inline">\(\rho\)</span> is the probability above.</p>
+</section>
+<section id="fitted-logistic-regression-model-compact-form" class="level2">
+<h2 class="anchored" data-anchor-id="fitted-logistic-regression-model-compact-form">Fitted Logistic Regression Model (Compact Form)</h2>
+<p>This is our data Generating Mechanism <span class="math display">\[
+\hat{Y} = \frac{1}{1 + e^{-(
+\beta_0 + \sum_{j=1}^{p} \beta_j X_j
+)}}
+\]</span></p>
+<p>where each <span class="math inline">\(\beta_j~[CI_{low},~CI_{high}]\)</span> is:</p>
+<ul>
+<li><span class="math inline">\(\beta_0 = -2.43~[-2.48,\ -2.39]\)</span> (Intercept)<br>
+</li>
+<li><span class="math inline">\(\beta_1 = 0.01~[0.01,\ 0.01]\)</span> (age)<br>
+</li>
+<li><span class="math inline">\(\beta_2 = 0.04~[0.02,\ 0.05]\)</span> (sexMale)<br>
+</li>
+<li><span class="math inline">\(\beta_3 = 0.09~[-0.00,\ 0.17]\)</span> (treatmentCivicDuty)<br>
+</li>
+<li><span class="math inline">\(\beta_4 = 0.07~[-0.02,\ 0.16]\)</span> (treatmentHawthorne)<br>
+</li>
+<li><span class="math inline">\(\beta_5 = 0.20~[0.12,\ 0.29]\)</span> (treatmentSelf)<br>
+</li>
+<li><span class="math inline">\(\beta_6 = 0.36~[0.28,\ 0.44]\)</span> (treatmentNeighbors)<br>
+</li>
+<li><span class="math inline">\(\beta_7 = 0.82~[0.78,\ 0.86]\)</span> (voterClassSometimes)<br>
+</li>
+<li><span class="math inline">\(\beta_8 = 1.61~[1.57,\ 1.65]\)</span> (voterClassAlways)<br>
+</li>
+<li><span class="math inline">\(\beta_9 = 0.03~[-0.06,\ 0.12]\)</span> (CivicDuty × Sometimes)<br>
+</li>
+<li><span class="math inline">\(\beta_{10} = 0.06~[-0.03,\ 0.15]\)</span> (Hawthorne × Sometimes)<br>
+</li>
+<li><span class="math inline">\(\beta_{11} = 0.05~[-0.04,\ 0.14]\)</span> (Self × Sometimes)<br>
+</li>
+<li><span class="math inline">\(\beta_{12} = 0.04~[-0.05,\ 0.13]\)</span> (Neighbors × Sometimes)<br>
+</li>
+<li><span class="math inline">\(\beta_{13} = -0.05~[-0.15,\ 0.05]\)</span> (CivicDuty × Always)<br>
+</li>
+<li><span class="math inline">\(\beta_{14} = 0.06~[-0.04,\ 0.16]\)</span> (Hawthorne × Always)<br>
+</li>
+<li><span class="math inline">\(\beta_{15} = -0.01~[-0.10,\ 0.09]\)</span> (Self × Always)<br>
+</li>
+<li><span class="math inline">\(\beta_{16} = 0.01~[-0.09,\ 0.10]\)</span> (Neighbors × Always)</li>
+</ul>
+</section>
+<section id="logestic-regression-coefficients" class="level2">
+<h2 class="anchored" data-anchor-id="logestic-regression-coefficients">Logestic Regression Coefficients</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Logistic Regression Coefficients with 95% Confidence Intervals</caption>
+<colgroup>
+<col style="width: 56%">
+<col style="width: 11%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">95% CI Lower</th>
+<th style="text-align: right;">95% CI Upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">-2.43</td>
+<td style="text-align: right;">-2.48</td>
+<td style="text-align: right;">-2.39</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.01</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sexMale</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">treatmentCivic Duty</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.17</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">treatmentHawthorne</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">-0.02</td>
+<td style="text-align: right;">0.16</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">treatmentSelf</td>
+<td style="text-align: right;">0.20</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: right;">0.29</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">treatmentNeighbors</td>
+<td style="text-align: right;">0.36</td>
+<td style="text-align: right;">0.28</td>
+<td style="text-align: right;">0.44</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">voter_classSometimes Vote</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">0.86</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">voter_classAlways Vote</td>
+<td style="text-align: right;">1.61</td>
+<td style="text-align: right;">1.57</td>
+<td style="text-align: right;">1.65</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">treatmentCivic Duty:voter_classSometimes Vote</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">-0.06</td>
+<td style="text-align: right;">0.12</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">treatmentHawthorne:voter_classSometimes Vote</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">-0.03</td>
+<td style="text-align: right;">0.15</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">treatmentSelf:voter_classSometimes Vote</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">-0.04</td>
+<td style="text-align: right;">0.14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">treatmentNeighbors:voter_classSometimes Vote</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">-0.05</td>
+<td style="text-align: right;">0.13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">treatmentCivic Duty:voter_classAlways Vote</td>
+<td style="text-align: right;">-0.05</td>
+<td style="text-align: right;">-0.15</td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">treatmentHawthorne:voter_classAlways Vote</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">-0.04</td>
+<td style="text-align: right;">0.16</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">treatmentSelf:voter_classAlways Vote</td>
+<td style="text-align: right;">-0.01</td>
+<td style="text-align: right;">-0.10</td>
+<td style="text-align: right;">0.09</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">treatmentNeighbors:voter_classAlways Vote</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">-0.09</td>
+<td style="text-align: right;">0.10</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
 
 </main>
